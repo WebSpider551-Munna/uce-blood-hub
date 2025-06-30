@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title">Your Profile</h5>
+            </div>
+            <div class="card-body text-center">
+                {% if profile.photo_path %}
+                    <img src="{{ url_for('static', filename='uploads/' + profile.photo_path) }}" 
+                         class="rounded-circle mb-3" width="150" height="150" alt="Profile Photo">
+                {% else %}
+                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center mb-3" 
+                         style="width: 150px; height: 150px; margin: 0 auto;">
+                        <span class="text-white">No Photo</span>
+                    </div>
+                {% endif %}
+                <h4>{{ profile.full_name }}</h4>
+                <p class="text-muted">{{ profile.roll_no }}</p>
+                <div class="d-flex justify-content-center mb-2">
+                    <span class="badge bg-danger me-2">{{ profile.blood_group }}</span>
+                    <span class="badge bg-{{ 'success' if profile.is_available else 'secondary' }}">
+                        {{ 'Available' if profile.is_available else 'Not Available' }}
+                    </span>
+                </div>
+                <p>{{ profile.branch }} - Year {{ profile.year }}</p>
+                <a href="{{ url_for('complete_profile') }}" class="btn btn-outline-danger btn-sm">Edit Profile</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <a href="{{ url_for('search_donors') }}" class="btn btn-outline-danger w-100 py-3">
+                            <i class="bi bi-search me-2"></i> Find Donors
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{{ url_for('request_blood') }}" class="btn btn-outline-danger w-100 py-3">
+                            <i class="bi bi-droplet me-2"></i> Request Blood
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{{ url_for('user_donation_drives') }}" class="btn btn-outline-danger w-100 py-3">
+                            <i class="bi bi-calendar-event me-2"></i> Donation Drives
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{{ url_for('user_donation_info') }}" class="btn btn-outline-danger w-100 py-3">
+                            <i class="bi bi-info-circle me-2"></i> Donation Info
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title">Your Donation History</h5>
+            </div>
+            <div class="card-body">
+                {% if profile.last_donation_date %}
+                    <p>Last Donation: {{ profile.last_donation_date.strftime('%d %B, %Y') }}</p>
+                {% else %}
+                    <p>You haven't donated blood yet.</p>
+                {% endif %}
+                <div class="progress mb-3">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: 25%;" 
+                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25% to next donation</div>
+                </div>
+                <form method="POST" action="{{ url_for('report_donation') }}">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-5">
+                            <input type="date" name="donation_date" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="number" name="amount_ml" class="form-control" placeholder="Amount (ml)" required>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-danger btn-sm">Report New Donation</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

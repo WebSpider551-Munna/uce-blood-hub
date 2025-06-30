@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Find Donors{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title">Search Donors</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('search_donors') }}">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="blood_group" class="form-label">Blood Group</label>
+                            <select class="form-select" id="blood_group" name="blood_group" required>
+                                <option value="" selected disabled>Select Blood Group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="branch" class="form-label">Branch (Optional)</label>
+                            <select class="form-select" id="branch" name="branch">
+                                <option value="" selected>All Branches</option>
+                                <option value="IT">Information Technology</option>
+                                <option value="CSE">Computer Science</option>
+                                <option value="ECE">Electronics</option>
+                                <option value="EEE">Electrical</option>
+                                <option value="MECH">Mechanical</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="year" class="form-label">Year (Optional)</label>
+                            <select class="form-select" id="year" name="year">
+                                <option value="" selected>All Years</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 mt-4">
+                            <button type="submit" class="btn btn-danger w-100">Search Donors</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        {% if search %}
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title">Search Results</h5>
+                </div>
+                <div class="card-body">
+                    {% if donors %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Blood Group</th>
+                                        <th>Branch</th>
+                                        <th>Year</th>
+                                        <th>Contact</th>
+                                        {% if 'user_id' in session %}
+                                            <th>Action</th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for donor in donors %}
+                                    <tr>
+                                        <td>{{ donor.full_name }}</td>
+                                        <td><span class="badge bg-danger">{{ donor.blood_group }}</span></td>
+                                        <td>{{ donor.branch }}</td>
+                                        <td>{{ donor.year }}</td>
+                                        <td>{{ donor.phone }}</td>
+                                        {% if 'user_id' in session %}
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-danger">Request</button>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            No donors found matching your criteria.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

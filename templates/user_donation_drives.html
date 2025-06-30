@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Donation Drives{% endblock %}
+{% block content %}
+<div class="card mt-4">
+    <div class="card-header bg-danger text-white">
+        <h5 class="card-title mb-0">Upcoming & Past Donation Drives</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Location</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for drive in drives %}
+                    <tr>
+                        <td>{{ drive.name }}</td>
+                        <td>{{ drive.date }}</td>
+                        <td>{{ drive.location }}</td>
+                        <td>{{ drive.description }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">No donation drives found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

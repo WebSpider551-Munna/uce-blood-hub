@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Donation Info{% endblock %}
+{% block content %}
+<div class="card mt-4">
+    <div class="card-header bg-danger text-white">
+        <h5 class="card-title mb-0">Your Donation Info</h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <strong>Total Donations:</strong> {{ total_donations }}<br>
+            <strong>Total Blood Donated:</strong> {{ total_amount }} ml
+        </div>
+        <form method="POST" action="{{ url_for('report_donation') }}" class="mb-4">
+            <h6>Report New Donation</h6>
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="date" name="donation_date" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="number" name="amount_ml" class="form-control" placeholder="Amount (ml)" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="location" class="form-control" placeholder="Location">
+                </div>
+                <div class="col-md-3">
+                    <select name="drive_id" class="form-select">
+                        <option value="">No Drive</option>
+                        {% for drive in drives %}
+                        <option value="{{ drive.id }}">{{ drive.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-danger btn-sm mt-2">Report Donation</button>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount (ml)</th>
+                        <th>Location</th>
+                        <th>Drive</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in donations %}
+                    <tr>
+                        <td>{{ d.donation_date }}</td>
+                        <td>{{ d.amount_ml }}</td>
+                        <td>{{ d.location }}</td>
+                        <td>{{ d.drive.name if d.drive else '' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">No donation history found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

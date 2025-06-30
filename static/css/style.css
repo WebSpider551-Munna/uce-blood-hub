@@ -1,0 +1,108 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    border-radius: 0 0 10px 10px;
+    margin-bottom: 2rem;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.badge.bg-danger {
+    padding: 0.35em 0.65em;
+}
+
+.progress {
+    height: 10px;
+    border-radius: 5px;
+}
+
+.progress-bar {
+    border-radius: 5px;
+}
+
+.table th {
+    border-top: none;
+}
+
+footer {
+    border-top: 1px solid #dee2e6;
+    margin-top: 3rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+/* Coordinator Donor Search Bar - keep search and dropdowns in a single line */
+.coordinator-donor-search .form-control,
+.coordinator-donor-search .form-select {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+}
+.coordinator-donor-search .btn {
+    white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0;
+    }
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+    .card {
+        margin-bottom: 1.5rem;
+    }
+    .coordinator-donor-search .form-control,
+    .coordinator-donor-search .form-select {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    .coordinator-donor-search .btn {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    .coordinator-donor-search {
+        flex-direction: column;
+    }
+}

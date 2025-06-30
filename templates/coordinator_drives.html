@@ -1,0 +1,46 @@
+<div class="card">
+    <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Donation Drives</h5>
+        <a href="{{ url_for('coordinator_dashboard', section='add_drive') }}" class="btn btn-light btn-sm">Add New Drive</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Location</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for drive in donation_drives %}
+                    <tr>
+                        <td>{{ drive.id }}</td>
+                        <td>{{ drive.name }}</td>
+                        <td>{{ drive.date }}</td>
+                        <td>{{ drive.location }}</td>
+                        <td>{{ drive.description }}</td>
+                        <td>
+                            {% if drive.status == 'cancelled' %}
+                                <button class="btn btn-sm btn-secondary" disabled>Cancelled</button>
+                            {% else %}
+                                <form method="post" action="{{ url_for('cancel_drive', drive_id=drive.id) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to cancel this drive?');">Cancel</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No donation drives found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

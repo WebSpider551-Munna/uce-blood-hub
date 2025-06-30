@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center py-5 bg-light">
+    <div class="container">
+        <h1 class="display-4">Welcome to UCE Blood Hub</h1>
+        <p class="lead">A platform to connect blood donors with those in need within our university community</p>
+        <a href="{{ url_for('search_donors') }}" class="btn btn-danger btn-lg mt-3">Find Donors</a>
+        {% if 'user_id' not in session %}
+            <a href="{{ url_for('register') }}" class="btn btn-outline-danger btn-lg mt-3 ms-2">Register as Donor</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h3 class="card-title">For Donors</h3>
+                    <p class="card-text">Register as a blood donor and help save lives in emergency situations.</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-danger">Register Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h3 class="card-title">For Patients</h3>
+                    <p class="card-text">Find compatible blood donors quickly when you need them the most.</p>
+                    <a href="{{ url_for('search_donors') }}" class="btn btn-danger">Search Donors</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h3 class="card-title">Blood Donation</h3>
+                    <p class="card-text">Learn about the importance of blood donation and how you can contribute.</p>
+                    <a href="{{ url_for('blood_donation_info') }}" class="btn btn-danger">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-danger text-white py-5">
+    <div class="container text-center">
+        <h2>Why Donate Blood?</h2>
+        <div class="row mt-4">
+            <div class="col-md-3 mb-3">
+                <h4>Save Lives</h4>
+                <p>Your donation can save up to 3 lives</p>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h4>Health Benefits</h4>
+                <p>Reduces risk of heart disease and cancer</p>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h4>Free Health Check</h4>
+                <p>Get a free mini health screening</p>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h4>Community</h4>
+                <p>Help your fellow students in need</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

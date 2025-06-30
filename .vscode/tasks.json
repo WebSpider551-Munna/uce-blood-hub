@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Run Flask App",
+			"command": "set FLASK_APP=app.py && set FLASK_ENV=development && flask run",
+			"group": "build",
+			"isBackground": true
+		}
+	]
+}

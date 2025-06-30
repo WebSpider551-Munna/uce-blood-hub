@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title">Admin Menu</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{{ url_for('admin_dashboard', section='users') }}" class="list-group-item list-group-item-action {% if current_section == 'users' %}active{% endif %}">Users</a>
+                <a href="{{ url_for('admin_dashboard', section='drives') }}" class="list-group-item list-group-item-action {% if current_section == 'drives' %}active{% endif %}">Donation Drives</a>
+                <a href="{{ url_for('admin_dashboard', section='requests') }}" class="list-group-item list-group-item-action {% if current_section == 'requests' %}active{% endif %}">Blood Requests</a>
+                <a href="{{ url_for('admin_dashboard', section='reports') }}" class="list-group-item list-group-item-action {% if current_section == 'reports' %}active{% endif %}">Reports</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title">Quick Stats</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>Total Users</h6>
+                    <h4>{{ total_users }}</h4>
+                </div>
+                <div class="mb-3">
+                    <h6>Active Donors</h6>
+                    <h4>{{ active_donors }}</h4>
+                </div>
+                <div class="mb-3">
+                    <h6>Pending Requests</h6>
+                    <h4>{{ pending_requests }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        {% if current_section == 'users' %}
+        <div class="card">
+            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">User Management</h5>
+                <a href="{{ url_for('admin_dashboard', section='add_user') }}" class="btn btn-light btn-sm">Add New User</a> {# Link to add_user section #}
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('edit_user_role', user_id=user.id) }}" class="d-inline">
+                                        <select name="role" class="form-select form-select-sm" onchange="this.form.submit()">
+                                            <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+                                            <option value="coordinator" {% if user.role == 'coordinator' %}selected{% endif %}>Coordinator</option>
+                                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Are you sure you want to delete this user?')">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% elif current_section == 'drives' %}
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">Donation Drives</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Location</th>
+                                {# TODO: Add more columns as needed #}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for drive in donation_drives %}
+                            <tr>
+                                <td>{{ drive.id }}</td>
+                                <td>{{ drive.name }}</td>
+                                <td>{{ drive.date }}</td>
+                                <td>{{ drive.location }}</td>
+                                {# TODO: Add more data cells as needed #}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% elif current_section == 'requests' %}
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">Blood Requests</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Requester</th>
+                                <th>Blood Group</th>
+                                <th>Units</th>
+                                <th>Hospital</th>
+                                <th>Urgency</th>
+                                <th>Contact</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                {# TODO: Add Actions column if needed #}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in blood_requests %}
+                            <tr>
+                                <td>{{ request.id }}</td>
+                                <td>{{ request.requester.username }}</td> {# Assuming requester relationship is loaded #}
+                                <td>{{ request.blood_group }}</td>
+                                <td>{{ request.units_required }}</td>
+                                <td>{{ request.hospital_name }}</td>
+                                <td>{{ request.urgency }}</td>
+                                <td>{{ request.contact_number }}</td>
+                                <td>{{ request.request_date }}</td>
+                                <td>{{ request.status }}</td>
+                                {# TODO: Add Action buttons if needed #}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% elif current_section == 'reports' %}
+        <div class="container-fluid">
+            <!-- Key Metrics, Filters, Tables, etc. (already present) -->
+            <!-- Chart containers -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6>Blood Group Distribution</h6>
+                            <canvas id="bloodGroupChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6>Requests by Blood Group</h6>
+                            <canvas id="requestsByGroupChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6>Monthly Trends</h6>
+                            <canvas id="monthlyTrendsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6>Donor Availability Over Time</h6>
+                            <canvas id="donorAvailabilityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6>Map Visualization</h6>
+                            <div id="map" style="height: 250px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Chart.js and Leaflet.js CDN -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <!-- Data for JS -->
+            <script type="application/javascript">
+            var bloodGroupLabels = [];
+            var bloodGroupData = [];
+            var requestsByGroupLabels = [];
+            var requestsByGroupData = [];
+            {% if blood_group_distribution %}
+            bloodGroupLabels = {{ blood_group_distribution|dictsort|map('first')|list|tojson|safe }};
+            bloodGroupData = {{ blood_group_distribution|dictsort|map('last')|list|tojson|safe }};
+            {% endif %}
+            {% if requests_by_group %}
+            requestsByGroupLabels = {{ requests_by_group|dictsort|map('first')|list|tojson|safe }};
+            requestsByGroupData = {{ requests_by_group|dictsort|map('last')|list|tojson|safe }};
+            {% endif %}
+            </script>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Only run if canvas elements exist
+                if (document.getElementById('bloodGroupChart')) {
+                    new Chart(document.getElementById('bloodGroupChart').getContext('2d'), {
+                        type: 'pie',
+                        data: {
+                            labels: bloodGroupLabels,
+                            datasets: [{
+                                data: bloodGroupData,
+                                backgroundColor: [
+                                    '#dc3545', '#fd7e14', '#ffc107', '#198754', '#0dcaf0', '#6610f2', '#6c757d', '#343a40'
+                                ]
+                            }]
+                        },
+                        options: {responsive: true}
+                    });
+                }
+                if (document.getElementById('requestsByGroupChart')) {
+                    new Chart(document.getElementById('requestsByGroupChart').getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: requestsByGroupLabels,
+                            datasets: [{
+                                label: 'Requests',
+                                data: requestsByGroupData,
+                                backgroundColor: '#dc3545'
+                            }]
+                        },
+                        options: {responsive: true}
+                    });
+                }
+                if (document.getElementById('monthlyTrendsChart')) {
+                    new Chart(document.getElementById('monthlyTrendsChart').getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [
+                                {label: 'Requests', data: [5, 8, 6, 10, 7, 12], borderColor: '#dc3545', fill: false},
+                                {label: 'Donations', data: [3, 6, 4, 8, 5, 10], borderColor: '#198754', fill: false}
+                            ]
+                        },
+                        options: {responsive: true}
+                    });
+                }
+                if (document.getElementById('donorAvailabilityChart')) {
+                    new Chart(document.getElementById('donorAvailabilityChart').getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [
+                                {label: 'Available Donors', data: [10, 12, 15, 13, 17, 20], borderColor: '#0dcaf0', fill: false}
+                            ]
+                        },
+                        options: {responsive: true}
+                    });
+                }
+                if (document.getElementById('map')) {
+                    var map = L.map('map').setView([20.5937, 78.9629], 4); // Centered on India
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: '© OpenStreetMap'
+                    }).addTo(map);
+                    {% for drive in recent_drives %}
+                    L.marker([20.5 + Math.random(), 78.9 + Math.random()]).addTo(map)
+                        .bindPopup('<b>{{ drive.name }}<\/b><br>{{ drive.location }}');
+                    {% endfor %}
+                }
+            });
+            </script>
+        </div>
+        {% elif current_section == 'add_user' %}
+            {% include 'add_user.html' %}
+        {% else %}
+        {# Default view, maybe show Quick Stats summary or Users #}
+         <div class="card">
+            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">User Management</h5>
+                <a href="{{ url_for('admin_dashboard', section='add_user') }}" class="btn btn-light btn-sm">Add New User</a> {# Link to add_user section #}
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('edit_user_role', user_id=user.id) }}" class="d-inline">
+                                        <select name="role" class="form-select form-select-sm" onchange="this.form.submit()">
+                                            <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+                                            <option value="coordinator" {% if user.role == 'coordinator' %}selected{% endif %}>Coordinator</option>
+                                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Are you sure you want to delete this user?')">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

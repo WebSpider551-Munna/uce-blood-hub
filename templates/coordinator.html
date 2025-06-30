@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Coordinator Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title">Coordinator Menu</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{{ url_for('coordinator_dashboard', section='donors') }}" class="list-group-item list-group-item-action {% if current_section == 'donors' %}active{% endif %}">Available Donors</a>
+                <a href="{{ url_for('coordinator_dashboard', section='requests') }}" class="list-group-item list-group-item-action {% if current_section == 'requests' %}active{% endif %}">Blood Requests</a>
+                <a href="{{ url_for('coordinator_dashboard', section='drives') }}" class="list-group-item list-group-item-action {% if current_section == 'drives' or current_section == 'add_drive' %}active{% endif %}">Donation Drives</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title">Quick Stats</h5>
+            </div>
+            <div class="card-body">
+                {% if current_section == 'donors' %}
+                    <div class="mb-2"><strong>Total Donors:</strong> {{ quick_stats.total_donors }}</div>
+                    {% for bg in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] %}
+                        <div class="mb-1"><span class="badge bg-danger">{{ bg }}</span> {{ quick_stats[bg ~ '_donors'] }}</div>
+                    {% endfor %}
+                {% elif current_section == 'requests' %}
+                    <div class="mb-2"><strong>Total Requests:</strong> {{ quick_stats.total_requests }}</div>
+                    <div class="mb-2"><span class="badge bg-success">Fulfilled</span> {{ quick_stats.fulfilled }}</div>
+                    <div class="mb-2"><span class="badge bg-warning text-dark">Pending</span> {{ quick_stats.pending }}</div>
+                    <div class="mb-2"><span class="badge bg-secondary">Cancelled</span> {{ quick_stats.cancelled }}</div>
+                {% elif current_section == 'drives' %}
+                    <div class="mb-2"><strong>Total Drives:</strong> {{ quick_stats.total_drives }}</div>
+                    <div class="mb-2"><span class="badge bg-success">Completed</span> {{ quick_stats.completed }}</div>
+                    <div class="mb-2"><span class="badge bg-info text-dark">Upcoming</span> {{ quick_stats.upcoming }}</div>
+                    <div class="mb-2"><span class="badge bg-secondary">Cancelled</span> {{ quick_stats.cancelled }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        {% if current_section == 'donors' %}
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title">Available Donors</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <form class="row g-3 coordinator-donor-search align-items-center" method="GET" action="{{ url_for('coordinator_dashboard', section='donors') }}" style="flex-wrap:nowrap;">
+                            <div class="col-md-3">
+                                <select class="form-select" name="blood_group">
+                                    <option value="">All Blood Groups</option>
+                                    {% for bg in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] %}
+                                    <option value="{{ bg }}" {% if request.args.get('blood_group') == bg %}selected{% endif %}>{{ bg }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" name="branch">
+                                    <option value="">All Branches</option>
+                                    {% for branch in ['IT', 'CSE', 'ECE', 'EEE', 'MECH'] %}
+                                    <option value="{{ branch }}" {% if request.args.get('branch') == branch %}selected{% endif %}>{{ branch }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" name="year">
+                                    <option value="">All Years</option>
+                                    {% for y in ['1', '2', '3', '4'] %}
+                                    <option value="{{ y }}" {% if request.args.get('year') == y %}selected{% endif %}>{{ y }} Year</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="submit" class="btn btn-danger w-100">Search</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Roll No</th>
+                                    <th>Blood Group</th>
+                                    <th>Branch</th>
+                                    <th>Year</th>
+                                    <th>Contact</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for donor in donors %}
+                                <tr>
+                                    <td>{{ donor.full_name }}</td>
+                                    <td>{{ donor.roll_no }}</td>
+                                    <td><span class="badge bg-danger">{{ donor.blood_group }}</span></td>
+                                    <td>{{ donor.branch }}</td>
+                                    <td>{{ donor.year }}</td>
+                                    <td>{{ donor.phone }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">Contact</button>
+                                        <button class="btn btn-sm btn-outline-secondary">Details</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% elif current_section == 'drives' %}
+            {% include 'coordinator_drives.html' %}
+        {% elif current_section == 'add_drive' %}
+            {% include 'coordinator_add_drive.html' %}
+        {% elif current_section == 'requests' %}
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">Blood Requests</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID <button type="button" class="btn btn-link btn-sm p-0 sort-btn" onclick="sortTable('id')">&#8597;</button></th>
+                                    <th>Requester <button type="button" class="btn btn-link btn-sm p-0 sort-btn" onclick="sortTable('requester')">&#8597;</button></th>
+                                    <th>Blood Group <button type="button" class="btn btn-link btn-sm p-0 sort-btn" onclick="sortTable('blood_group')">&#8597;</button></th>
+                                    <th>Units <button type="button" class="btn btn-link btn-sm p-0 sort-btn" onclick="sortTable('units_required')">&#8597;</button></th>
+                                    <th>Hospital <button type="button" class="btn btn-link btn-sm p-0 sort-btn" onclick="sortTable('hospital_name')">&#8597;</button></th>
+                                    <th>Urgency <button type="button" class="btn btn-link btn-sm p-0 sort-btn" onclick="sortTable('urgency')">&#8597;</button></th>
+                                    <th>Contact <button type="button" class="btn btn-link btn-sm p-0 sort-btn" onclick="sortTable('contact_number')">&#8597;</button></th>
+                                    <th>Date <button type="button" class="btn btn-link btn-sm p-0 sort-btn" onclick="sortTable('request_date')">&#8597;</button></th>
+                                    <th>Status <button type="button" class="btn btn-link btn-sm p-0 sort-btn" onclick="sortTable('status')">&#8597;</button></th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in blood_requests %}
+                                <tr>
+                                    <td>{{ request.id }}</td>
+                                    <td>{{ request.requester.username if request.requester else '' }}</td>
+                                    <td>{{ request.blood_group }}</td>
+                                    <td>{{ request.units_required }}</td>
+                                    <td>{{ request.hospital_name }}</td>
+                                    <td>{{ request.urgency }}</td>
+                                    <td>{{ request.contact_number }}</td>
+                                    <td>{{ request.request_date }}</td>
+                                    <td>{{ request.status }}</td>
+                                    <td>
+                                        {% if request.status == 'pending' %}
+                                        <form method="post" action="{{ url_for('coordinator_dashboard', section='requests') }}" style="display:inline;">
+<script>
+// Simple client-side table sort (for demo, sorts only visible rows)
+function sortTable(colName) {
+    const table = document.querySelector('.table.table-striped');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    let colIdx = {
+        'id': 0,
+        'requester': 1,
+        'blood_group': 2,
+        'units_required': 3,
+        'hospital_name': 4,
+        'urgency': 5,
+        'contact_number': 6,
+        'request_date': 7,
+        'status': 8
+    }[colName];
+    let sorted = rows.sort((a, b) => {
+        let aText = a.children[colIdx].innerText.trim();
+        let bText = b.children[colIdx].innerText.trim();
+        if (!isNaN(aText) && !isNaN(bText)) {
+            return Number(aText) - Number(bText);
+        }
+        return aText.localeCompare(bText);
+    });
+    // Toggle sort direction
+    if (tbody.getAttribute('data-sorted') === colName) {
+        sorted.reverse();
+        tbody.setAttribute('data-sorted', '');
+    } else {
+        tbody.setAttribute('data-sorted', colName);
+    }
+    sorted.forEach(row => tbody.appendChild(row));
+}
+</script>
+                                            <input type="hidden" name="request_id" value="{{ request.id }}">
+                                            <select name="new_status" class="form-select form-select-sm d-inline w-auto" required>
+                                                <option value="">Change status</option>
+                                                <option value="fulfilled">Fulfilled</option>
+                                                <option value="cancelled">Cancelled</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                                        </form>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info">Select a section from the menu.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
