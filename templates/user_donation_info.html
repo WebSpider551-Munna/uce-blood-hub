@@ -10,23 +10,23 @@
             <strong>Total Donations:</strong> {{ total_donations }}<br>
             <strong>Total Blood Donated:</strong> {{ total_amount }} ml
         </div>
-        <form method="POST" action="{{ url_for('report_donation') }}" class="mb-4">
+        <form method="POST" action="{{ url_for('report_donation') }}" class="mb-4" id="donationForm">
             <h6>Report New Donation</h6>
             <div class="row g-2">
                 <div class="col-md-3">
-                    <input type="date" name="donation_date" class="form-control" required>
+                    <input type="date" name="donation_date" class="form-control" id="donation_date" required>
                 </div>
                 <div class="col-md-3">
                     <input type="number" name="amount_ml" class="form-control" placeholder="Amount (ml)" required>
                 </div>
                 <div class="col-md-3">
-                    <input type="text" name="location" class="form-control" placeholder="Location">
+                    <input type="text" name="location" class="form-control" placeholder="Location" id="donation_location">
                 </div>
                 <div class="col-md-3">
-                    <select name="drive_id" class="form-select">
+                    <select name="drive_id" class="form-select" id="drive_id">
                         <option value="">No Drive</option>
-                        {% for drive in drives %}
-                        <option value="{{ drive.id }}">{{ drive.name }}</option>
+                        {% for drive in donation_drives %}
+                        <option value="{{ drive.id }}" data-date="{{ drive.date }}" data-location="{{ drive.location }}">{{ drive.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -61,4 +61,31 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const driveSelect = document.getElementById('drive_id');
+    const dateInput = document.getElementById('donation_date');
+    const locationInput = document.getElementById('donation_location');
+    driveSelect.addEventListener('change', function() {
+        const selected = driveSelect.options[driveSelect.selectedIndex];
+        const driveDate = selected.getAttribute('data-date');
+        const driveLocation = selected.getAttribute('data-location');
+        if (driveSelect.value) {
+            if (driveDate) {
+                dateInput.value = driveDate;
+                dateInput.readOnly = true;
+            }
+            if (driveLocation) {
+                locationInput.value = driveLocation;
+                locationInput.readOnly = true;
+            }
+        } else {
+            dateInput.value = '';
+            dateInput.readOnly = false;
+            locationInput.value = '';
+            locationInput.readOnly = false;
+        }
+    });
+});
+</script>
 {% endblock %}

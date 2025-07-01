@@ -7,45 +7,51 @@
             <h5 class="card-title mb-0">Request Blood</h5>
         </div>
         <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
             <form method="POST">
                 <div class="mb-3">
                     <label for="patient_name" class="form-label">Patient Name</label>
-                    <input type="text" class="form-control" id="patient_name" name="patient_name" required>
+                    <input type="text" class="form-control" id="patient_name" name="patient_name" required value="{{ request.form.patient_name or '' }}">
                 </div>
                 <div class="mb-3">
                     <label for="blood_group" class="form-label">Blood Group</label>
                     <select class="form-select" id="blood_group" name="blood_group" required>
                         <option value="">Select</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
+                        {% for bg in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] %}
+                        {# Use prefill_blood_group for initial selection #}
+                        <option value="{{ bg }}" {% if (request.form.blood_group or prefill_blood_group) == bg %}selected{% endif %}>{{ bg }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="units_required" class="form-label">Units Required</label>
-                    <input type="number" class="form-control" id="units_required" name="units_required" min="1" required>
+                    <input type="number" class="form-control" id="units_required" name="units_required" min="1" required value="{{ request.form.units_required or '' }}">
                 </div>
                 <div class="mb-3">
                     <label for="hospital_name" class="form-label">Hospital Name</label>
-                    <input type="text" class="form-control" id="hospital_name" name="hospital_name" required>
+                    <input type="text" class="form-control" id="hospital_name" name="hospital_name" required value="{{ request.form.hospital_name or '' }}">
                 </div>
                 <div class="mb-3">
                     <label for="urgency" class="form-label">Urgency</label>
                     <select class="form-select" id="urgency" name="urgency" required>
-                        <option value="High">High</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Critical">Critical</option>
-                        <option value="Low">Low</option>
+                        {% for u in ['Low', 'Medium', 'High','Critical'] %}
+                        <option value="{{ u }}" {% if request.form.urgency == u %}selected{% endif %}>{{ u }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="contact_number" class="form-label">Contact Number</label>
-                    <input type="text" class="form-control" id="contact_number" name="contact_number" required>
+                    <input type="text" class="form-control" id="contact_number" name="contact_number" required pattern="^\d{10,15}$" value="{{ request.form.contact_number or '' }}" aria-describedby="contactHelp">
+                    <div id="contactHelp" class="form-text">Enter a valid phone number (10-15 digits).</div>
                 </div>
                 <button type="submit" class="btn btn-danger">Submit Request</button>
                 <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary">Cancel</a>
