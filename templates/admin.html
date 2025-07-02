@@ -28,7 +28,7 @@
                 </div>
                 <div class="mb-3">
                     <h6>Active Donors</h6>
-                    <h4>{{ active_donors }}</h4>
+                    <h4>{{ available_donors }}</h4>
                 </div>
                 <div class="mb-3">
                     <h6>Pending Requests</h6>
@@ -202,10 +202,7 @@
             <div class="row mb-4">
                 <div class="col-md-6">
                     <div class="card">
-                        <div class="card-body">
-                            <h6>Map Visualization</h6>
-                            <div id="map" style="height: 250px;"></div>
-                        </div>
+                        <!-- Map Visualization removed as requested -->
                     </div>
                 </div>
             </div>
@@ -215,18 +212,10 @@
             <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
             <!-- Data for JS -->
             <script type="application/javascript">
-            var bloodGroupLabels = [];
-            var bloodGroupData = [];
-            var requestsByGroupLabels = [];
-            var requestsByGroupData = [];
-            {% if blood_group_distribution %}
-            bloodGroupLabels = {{ blood_group_distribution|dictsort|map('first')|list|tojson|safe }};
-            bloodGroupData = {{ blood_group_distribution|dictsort|map('last')|list|tojson|safe }};
-            {% endif %}
-            {% if requests_by_group %}
-            requestsByGroupLabels = {{ requests_by_group|dictsort|map('first')|list|tojson|safe }};
-            requestsByGroupData = {{ requests_by_group|dictsort|map('last')|list|tojson|safe }};
-            {% endif %}
+            var bloodGroupLabels = {{ blood_group_distribution|dictsort|map('first')|list|tojson|safe }};
+            var bloodGroupData = {{ blood_group_distribution|dictsort|map('last')|list|tojson|safe }};
+            var requestsByGroupLabels = {{ requests_by_group|dictsort|map('first')|list|tojson|safe }};
+            var requestsByGroupData = {{ requests_by_group|dictsort|map('last')|list|tojson|safe }};
             </script>
             <script>
             document.addEventListener('DOMContentLoaded', function() {

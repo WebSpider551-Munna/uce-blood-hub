@@ -242,10 +242,10 @@ def admin_dashboard():
         users=users,
         total_users=total_users,
         available_donors=available_donors,
+        pending_requests=pending_requests,
         total_drives=total_drives,
         total_units_donated=total_units_donated,
         total_requests=total_requests,
-        pending_requests=pending_requests,
         fulfilled_requests=fulfilled_requests,
         rejected_requests=rejected_requests,
         blood_group_distribution=blood_group_distribution,
@@ -258,7 +258,8 @@ def admin_dashboard():
         actionable_insights=actionable_insights,
         blood_requests=blood_requests,
         donation_drives=donation_drives,
-        reports=reports
+        reports=reports,
+        active_donors=available_donors
     )
 
 @app.route('/coordinator', methods=['GET', 'POST'])
@@ -328,13 +329,27 @@ def coordinator_dashboard():
                 flash(f'Request status updated to {new_status}.', 'success')
             return redirect(url_for('coordinator_dashboard', section='requests'))
 
+    if session.get('role') == 'coordinator':
+        # Get coordinator's last donation date
+        user = User.query.get(session['user_id'])
+        last_donation = None
+        if user and user.donation_history:
+            last = sorted(user.donation_history, key=lambda d: d.donation_date, reverse=True)
+            if last:
+                last_donation = last[0].donation_date
+        else:
+            last_donation = None
+    else:
+        last_donation = None
+
     return render_template(
         'coordinator.html',
         current_section=current_section,
         donors=donors,
         donation_drives=donation_drives,
         blood_requests=blood_requests,
-        quick_stats=quick_stats
+        quick_stats=quick_stats,
+        last_donation=last_donation
     )
 
 @app.route('/complete-profile', methods=['GET', 'POST'])
@@ -416,6 +431,9 @@ def search_donors():
 @app.route('/request-blood', methods=['GET', 'POST'])
 @login_required()
 def request_blood():
+    # Get blood_group from query parameters if available (from donor search)
+    prefill_blood_group = request.args.get('blood_group')
+
     if request.method == 'POST':
         patient_name = request.form['patient_name']
         blood_group = request.form['blood_group']
@@ -440,7 +458,9 @@ def request_blood():
         except Exception as e:
             db.session.rollback()
             flash(f'Error submitting request: {e}', 'danger')
-    return render_template('request_blood.html')
+
+    # Pass the prefill_blood_group to the template
+    return render_template('request_blood.html', prefill_blood_group=prefill_blood_group)
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
@@ -476,7 +496,10 @@ def user_donation_info():
     donations = DonationHistory.query.filter_by(user_id=user.id).order_by(DonationHistory.donation_date.desc()).all()
     total_donations = len(donations)
     total_amount = sum(d.amount_ml for d in donations)
-    return render_template('user_donation_info.html', donations=donations, total_donations=total_donations, total_amount=total_amount)
+    # Only show non-cancelled drives
+    from sqlalchemy import or_
+    donation_drives = DonationDrive.query.filter(or_(DonationDrive.status == None, DonationDrive.status != 'cancelled')).order_by(DonationDrive.date.desc()).all()
+    return render_template('user_donation_info.html', donations=donations, total_donations=total_donations, total_amount=total_amount, donation_drives=donation_drives)
 
 @app.route('/user/report-donation', methods=['POST'])
 @login_required()
@@ -517,13 +540,24 @@ def edit_user_role(user_id):
 def delete_user(user_id):
     try:
         user = User.query.get(user_id)
+        if not user:
+            flash('User not found.', 'danger')
+            return redirect(url_for('admin_dashboard'))
+        # Delete related UserProfile if exists
+        if user.profile:
+            db.session.delete(user.profile)
+        # Delete related DonationHistory if exists
+        for donation in user.donation_history:
+            db.session.delete(donation)
+        # Delete related BloodRequests if exists
+        for req in user.blood_requests:
+            db.session.delete(req)
         db.session.delete(user)
         db.session.commit()
         flash('User deleted successfully.', 'success')
     except Exception as e:
         db.session.rollback()
-        flash('Error deleting user.', 'danger')
-    
+        flash(f'Error deleting user: {e}', 'danger')
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/add-user', methods=['GET', 'POST'])

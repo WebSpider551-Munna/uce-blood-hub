@@ -86,7 +86,7 @@
                                         <td>{{ donor.phone }}</td>
                                         {% if 'user_id' in session %}
                                             <td>
-                                                <button class="btn btn-sm btn-outline-danger">Request</button>
+                                                <a href="{{ url_for('request_blood', blood_group=donor.blood_group) }}" class="btn btn-sm btn-danger">Request</a>
                                             </td>
                                         {% endif %}
                                     </tr>
